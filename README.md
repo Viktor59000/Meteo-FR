@@ -55,7 +55,5 @@ Pour lancer ce projet en local, vous devez avoir [Node.js](https://nodejs.org/) 
 
 ## 📄 Licence et Contact
 
-Ce projet a été réalisé par **Venet Viktor** dans le cadre d'un projet d'examen.
-
 * **GitHub :** [@Viktor59000](https://github.com/Viktor59000)
 * **Projet :** `meteo-france-map`
