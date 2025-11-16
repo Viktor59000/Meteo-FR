@@ -1,5 +1,3 @@
-#Carte Météo Interactive France (Meteo-Dunkirk)
-
 ## 🌟 Aperçu du Projet
 
 Ce projet est une application web monopage (SPA) conçue pour fournir des prévisions météorologiques détaillées pour n'importe quelle commune en France. Il utilise la cartographie interactive pour une UX moderne et épurée.
