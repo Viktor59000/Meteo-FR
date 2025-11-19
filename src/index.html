@@ -1,82 +1,556 @@
 <!DOCTYPE html>
 <html lang="fr" data-theme="dark">
+
 <head>
-    <link rel="icon" href="../src/favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carte Météo France - Dark Mode</title>
+    <meta name="description"
+        content="Application météo moderne et accessible fournissant des prévisions détaillées, la qualité de l'air et l'indice UV pour toute la France.">
+    <title>Météo France 2.0 - Prévisions & Qualité de l'Air</title>
+    <link rel="icon" href="favicon.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
-    <div class="app-container">
-        
-        <header class="main-navbar">
-            <div class="logo">
-                <span>MÉTÉO FRANCE</span>
+    <div id="app-wrapper" class="app-wrapper">
+        <div id="weather-overlay" class="weather-overlay"></div>
+
+        <header class="app-header">
+            <div class="logo-container">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 2L19.7 9.5L28 10.7L22 16.5L23.4 24.7L16 20.8L8.6 24.7L10 16.5L4 10.7L12.3 9.5L16 2Z"
+                        fill="currentColor" />
+                </svg>
+                <span class="logo-text">Météo France <span class="version-badge">3.0</span></span>
             </div>
-            
-            <div class="search-module">
-                <span class="search-icon" aria-hidden="true"> 
-                    <svg viewBox="0 0 24 24" width="18" height="18"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-                </span>
-                <input type="text" id="city-search" placeholder="Rechercher une ville..." aria-label="Recherche de ville">
-                <ul id="suggestions-list" class="suggestions-list"></ul>
+
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="city-search" placeholder="Rechercher une ville..."
+                        aria-label="Rechercher une ville" autocomplete="off">
+                    <ul id="suggestions-list" class="suggestions-list" hidden></ul>
+                </div>
             </div>
-            
-            <button id="theme-toggle" title="Basculer thème" class="theme-toggle-button" aria-pressed="false" aria-label="Basculer entre mode sombre et clair">
-                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="12" cy="12" r="5"/><rect x="11" y="1" width="2" height="4" rx="1"/><rect x="11" y="19" width="2" height="4" rx="1"/><rect x="1" y="11" width="4" height="2" rx="1"/><rect x="19" y="11" width="4" height="2" rx="1"/></g></svg>
-                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z" fill="currentColor"/></svg>
-            </button>
+
+            <div class="header-actions">
+                <button id="locate-me" class="icon-btn" aria-label="Me localiser" title="Me localiser">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                    </svg>
+                </button>
+                <button id="favorites-toggle" class="icon-btn" aria-label="Favoris" title="Favoris">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                        </path>
+                    </svg>
+                </button>
+                <button id="theme-toggle" class="icon-btn" aria-label="Changer de thème" title="Thème">
+                    <svg class="sun-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <!-- Phase 5: Profile Button -->
+                <button id="profile-btn" class="profile-btn" aria-label="Profil">
+                    <div class="avatar-placeholder">👤</div>
+                    <span id="user-level-badge" class="level-badge">1</span>
+                </button>
+            </div>
         </header>
-        
-        <div id="map-wrapper">
-            <div id="map">
-                <p class="initial-message">Utilisez la barre de recherche pour commencer.</p>
-            </div>
 
-            <div id="weather-dialog" class="dialog-text hidden">
-                <div class="dialog-header">
-                    <i id="weather-icon-svg" data-icon="sun" class="weather-icon-svg"></i>
-                    <p class="main"><span id="dialog-city">Sélectionnez une Ville</span></p>
-                </div>
-                
-                <div class="details-section">
-                    <p class="current-temp"><span id="temp-value">--°C</span></p>
-                    <p class="details"><span id="desc-value" class="gr">--</span></p>
-                    <p class="details">
-                        Humidité: <span id="humidity-value" class="gr">--%</span><br>
-                        Vent: <span id="wind-value" class="gr">-- km/h</span>
-                    </p>
-                </div>
-                
-                <div class="contact">
-                    <a class="button" id="more-info-button">Voir 14 jours</a>
-                </div>
-            </div>
+        <div id="alerts-container" class="alerts-container"></div>
 
-            <div id="forecast-7days" class="forecast-panel hidden">
-                <div class="forecast-header">
-                    <h3>Prévisions</h3>
-                    <button id="close-forecast" class="close-button">X</button>
+        <main class="app-content">
+            <section id="map-section" class="map-section">
+                <div id="map"></div>
+                <div id="map-message" class="map-message">
+                    <h2>Explorez la météo</h2>
+                    <p>Recherchez une ville ou utilisez votre position</p>
                 </div>
-                <div id="forecast-list" class="daily-list">
-                    </div>
-                
-                <div id="hourly-details" class="hourly-details hidden">
-                    <div class="hourly-header hidden">
-                        <h4>Détails du <span id="hourly-day-name"></span></h4>
-                        <button id="back-to-daily" class="close-button back-button">← Retour</button>
-                    </div>
-                    <div id="hourly-list">
+            </section>
+
+            <aside id="weather-dashboard" class="weather-dashboard hidden">
+                <div class="dashboard-grid">
+                    <!-- Current Weather -->
+                    <article class="card current-weather-card">
+                        <div class="card-header">
+                            <h2 id="current-city-name">Ville</h2>
+                            <div class="header-actions-mini">
+                                <button id="add-favorite" class="favorite-btn" aria-label="Ajouter aux favoris">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path
+                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                </button>
+                                <!-- Phase 5: Speak Button -->
+                                <button id="speak-weather" class="speak-btn" aria-label="Lire la météo">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                    </svg>
+                                </button>
+                                <!-- Phase 4: Share & Trivia -->
+                                <button id="share-btn" class="icon-btn-mini" aria-label="Partager">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="18" cy="5" r="3"></circle>
+                                        <circle cx="6" cy="12" r="3"></circle>
+                                        <circle cx="18" cy="19" r="3"></circle>
+                                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                                    </svg>
+                                </button>
+                                <button id="trivia-btn" class="icon-btn-mini" aria-label="Le saviez-vous ?">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
+                        <div class="current-main">
+                            <div id="current-weather-icon" class="weather-icon-large"></div>
+                            <div class="temp-container">
+                                <span id="current-temp" class="current-temp">--°</span>
+                                <span id="current-desc" class="current-desc">--</span>
+                            </div>
+                        </div>
+                        <div class="current-details">
+                            <div class="detail-item">
+                                <span class="label">Ressenti</span>
+                                <span id="apparent-temp" class="value">--°</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Vent</span>
+                                <span id="wind-speed" class="value">-- km/h</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Humidité</span>
+                                <span id="humidity" class="value">--%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Pression</span>
+                                <span id="pressure" class="value">-- hPa</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Environment -->
+                    <article class="card environment-card">
+                        <h3>Environnement</h3>
+                        <div class="env-grid">
+                            <div class="env-item">
+                                <div class="env-icon uv-icon">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="5" />
+                                        <path
+                                            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                                    </svg>
+                                </div>
+                                <div class="env-info">
+                                    <span class="label">Indice UV</span>
+                                    <span id="uv-index" class="value">--</span>
+                                    <span id="uv-label" class="sub-label">--</span>
+                                </div>
+                            </div>
+                            <div class="env-item">
+                                <div class="env-icon air-icon">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path
+                                            d="M12.5 2.5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-5Z" />
+                                        <path
+                                            d="M6 13a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H6Z" />
+                                        <path
+                                            d="M18 13a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-2Z" />
+                                        <path
+                                            d="M6 2.5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H6Z" />
+                                    </svg>
+                                </div>
+                                <div class="env-info">
+                                    <span class="label">Qualité Air (AQI)</span>
+                                    <span id="air-quality" class="value">--</span>
+                                    <span id="air-label" class="sub-label">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="health-grid" style="margin-top: 20px;">
+                            <div class="pollen-item"><span class="pollen-name">Aulne</span>
+                                <div class="pollen-bar-bg">
+                                    <div id="pollen-alder" class="pollen-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="pollen-item"><span class="pollen-name">Bouleau</span>
+                                <div class="pollen-bar-bg">
+                                    <div id="pollen-birch" class="pollen-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="pollen-item"><span class="pollen-name">Graminées</span>
+                                <div class="pollen-bar-bg">
+                                    <div id="pollen-grass" class="pollen-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="pollen-item"><span class="pollen-name">Olivier</span>
+                                <div class="pollen-bar-bg">
+                                    <div id="pollen-olive" class="pollen-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="pollen-item"><span class="pollen-name">Ambroisie</span>
+                                <div class="pollen-bar-bg">
+                                    <div id="pollen-ragweed" class="pollen-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Sun -->
+                    <article class="card sun-card">
+                        <h3>Éphémérides</h3>
+                        <div class="sun-times">
+                            <div class="sun-item">
+                                <svg class="sun-icon rise" viewBox="0 0 24 24" width="24" height="24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M17 18a5 5 0 0 0-10 0"></path>
+                                    <line x1="12" y1="2" x2="12" y2="9"></line>
+                                    <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line>
+                                    <line x1="1" y1="18" x2="3" y2="18"></line>
+                                    <line x1="21" y1="18" x2="23" y2="18"></line>
+                                    <line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line>
+                                    <line x1="23" y1="22" x2="1" y2="22"></line>
+                                    <polyline points="8 6 12 2 16 6"></polyline>
+                                </svg>
+                                <span class="label">Lever</span>
+                                <span id="sunrise-time" class="value">--:--</span>
+                            </div>
+                            <div class="sun-item">
+                                <svg class="sun-icon set" viewBox="0 0 24 24" width="24" height="24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M17 18a5 5 0 0 0-10 0"></path>
+                                    <line x1="12" y1="9" x2="12" y2="2"></line>
+                                    <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line>
+                                    <line x1="1" y1="18" x2="3" y2="18"></line>
+                                    <line x1="21" y1="18" x2="23" y2="18"></line>
+                                    <line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line>
+                                    <line x1="23" y1="22" x2="1" y2="22"></line>
+                                    <polyline points="16 5 12 9 8 5"></polyline>
+                                </svg>
+                                <span class="label">Coucher</span>
+                                <span id="sunset-time" class="value">--:--</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Hourly Chart -->
+                    <article class="card chart-card">
+                        <h3>Prévisions 24h</h3>
+                        <div class="chart-container">
+                            <canvas id="hourly-chart"></canvas>
+                        </div>
+                    </article>
+
+                    <!-- Daily Forecast -->
+                    <article class="card daily-forecast-card">
+                        <h3>Prévisions 14 jours</h3>
+                        <div id="daily-list" class="daily-list">
+                            <!-- JS injected -->
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Phase 4: Community Hub -->
+                <section id="community-hub" class="community-hub hidden">
+                    <div class="community-header">
+                        <h3>Espace Communauté</h3>
+                        <span id="community-status" class="status-badge">En direct</span>
+                    </div>
+
+                    <div class="community-grid">
+                        <!-- Voting -->
+                        <div class="card vote-card">
+                            <h4>La météo est-elle exacte ?</h4>
+                            <div class="vote-buttons">
+                                <button id="vote-correct" class="vote-btn correct">
+                                    <span class="icon">👍</span> Exact
+                                </button>
+                                <button id="vote-incorrect" class="vote-btn incorrect">
+                                    <span class="icon">👎</span> Incorrect
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Activities -->
+                        <div class="card activities-card">
+                            <h4>Activités recommandées</h4>
+                            <div id="activities-list" class="activities-list">
+                                <!-- JS injected -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="app-footer">
+                    <p>&copy; 2023 Météo France 3.0 - Données Open-Meteo</p>
+                </footer>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <dialog id="favorites-dialog" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mes Favoris</h2>
+                <button id="close-favorites" class="close-btn">&times;</button>
+            </div>
+            <ul id="favorites-list" class="favorites-list"></ul>
+        </div>
+    </dialog>
+
+    <!-- Phase 5: Profile Modal -->
+    <dialog id="profile-dialog" class="modal profile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mon Profil</h2>
+                <button id="close-profile" class="close-btn">&times;</button>
+            </div>
+            <div class="profile-content">
+                <div class="profile-summary">
+                    <div class="big-avatar">👤</div>
+                    <h3 id="profile-level-name">Observateur</h3>
+                    <div class="xp-bar-container">
+                        <div id="xp-bar" class="xp-bar" style="width: 0%"></div>
+                    </div>
+                    <p><span id="profile-xp">0</span> XP</p>
+                </div>
+                <div class="badges-section">
+                    <h4>Badges</h4>
+                    <div class="badges-grid">
+                        <div class="badge" title="Premier Vote">🗳️</div>
+                        <div class="badge" title="Explorateur">🌍</div>
+                        <div class="badge" title="Photographe">📸</div>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <footer class="main-footer">
-            <p>Météo France | <a href="https://github.com/Viktor59000" target="_blank">Venet Viktor B2 GCDD</a></p>
-        </footer>
+    </dialog>
+    <div class="env-icon uv-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5" />
+            <path
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+        </svg>
     </div>
+    <div class="env-info">
+        <span class="label">Indice UV</span>
+        <span id="uv-index" class="value">--</span>
+        <span id="uv-label" class="sub-label">--</span>
+    </div>
+    </div>
+    <div class="env-item">
+        <div class="env-icon air-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12.5 2.5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-5Z" />
+                <path d="M6 13a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H6Z" />
+                <path d="M18 13a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-2Z" />
+                <path d="M6 2.5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H6Z" />
+            </svg>
+        </div>
+        <div class="env-info">
+            <span class="label">Qualité Air (AQI)</span>
+            <span id="air-quality" class="value">--</span>
+            <span id="air-label" class="sub-label">--</span>
+        </div>
+    </div>
+    </div>
+
+    <div class="health-grid" style="margin-top: 20px;">
+        <div class="pollen-item"><span class="pollen-name">Aulne</span>
+            <div class="pollen-bar-bg">
+                <div id="pollen-alder" class="pollen-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="pollen-item"><span class="pollen-name">Bouleau</span>
+            <div class="pollen-bar-bg">
+                <div id="pollen-birch" class="pollen-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="pollen-item"><span class="pollen-name">Graminées</span>
+            <div class="pollen-bar-bg">
+                <div id="pollen-grass" class="pollen-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="pollen-item"><span class="pollen-name">Olivier</span>
+            <div class="pollen-bar-bg">
+                <div id="pollen-olive" class="pollen-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="pollen-item"><span class="pollen-name">Ambroisie</span>
+            <div class="pollen-bar-bg">
+                <div id="pollen-ragweed" class="pollen-bar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+    </article>
+
+    <!-- Sun -->
+    <article class="card sun-card">
+        <h3>Éphémérides</h3>
+        <div class="sun-times">
+            <div class="sun-item">
+                <svg class="sun-icon rise" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M17 18a5 5 0 0 0-10 0"></path>
+                    <line x1="12" y1="2" x2="12" y2="9"></line>
+                    <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line>
+                    <line x1="1" y1="18" x2="3" y2="18"></line>
+                    <line x1="21" y1="18" x2="23" y2="18"></line>
+                    <line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line>
+                    <line x1="23" y1="22" x2="1" y2="22"></line>
+                    <polyline points="8 6 12 2 16 6"></polyline>
+                </svg>
+                <span class="label">Lever</span>
+                <span id="sunrise-time" class="value">--:--</span>
+            </div>
+            <div class="sun-item">
+                <svg class="sun-icon set" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M17 18a5 5 0 0 0-10 0"></path>
+                    <line x1="12" y1="9" x2="12" y2="2"></line>
+                    <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line>
+                    <line x1="1" y1="18" x2="3" y2="18"></line>
+                    <line x1="21" y1="18" x2="23" y2="18"></line>
+                    <line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line>
+                    <line x1="23" y1="22" x2="1" y2="22"></line>
+                    <polyline points="16 5 12 9 8 5"></polyline>
+                </svg>
+                <span class="label">Coucher</span>
+                <span id="sunset-time" class="value">--:--</span>
+            </div>
+        </div>
+    </article>
+
+    <!-- Hourly Chart -->
+    <article class="card chart-card">
+        <h3>Prévisions 24h</h3>
+        <div class="chart-container">
+            <canvas id="hourly-chart"></canvas>
+        </div>
+    </article>
+
+    <!-- Daily Forecast -->
+    <article class="card daily-forecast-card">
+        <h3>Prévisions 14 jours</h3>
+        <div id="daily-list" class="daily-list">
+            <!-- JS injected -->
+        </div>
+    </article>
+    </div>
+
+    <!-- Phase 4: Community Hub -->
+    <section id="community-hub" class="community-hub hidden">
+        <div class="community-header">
+            <h3>Espace Communauté</h3>
+            <span id="community-status" class="status-badge">En direct</span>
+        </div>
+
+        <div class="community-grid">
+            <!-- Voting -->
+            <div class="card vote-card">
+                <h4>La météo est-elle exacte ?</h4>
+                <div class="vote-buttons">
+                    <button id="vote-correct" class="vote-btn correct">
+                        <span class="icon">👍</span> Exact
+                    </button>
+                    <button id="vote-incorrect" class="vote-btn incorrect">
+                        <span class="icon">👎</span> Incorrect
+                    </button>
+                </div>
+            </div>
+
+            <!-- Activities -->
+            <div class="card activities-card">
+                <h4>Activités recommandées</h4>
+                <div id="activities-list" class="activities-list">
+                    <!-- JS injected -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="app-footer">
+        <p>&copy; 2023 Météo France 3.0 - Données Open-Meteo</p>
+    </footer>
+    </aside>
+    </main>
+    </div>
+
+    <!-- Modals -->
+    <dialog id="favorites-dialog" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mes Favoris</h2>
+                <button id="close-favorites" class="close-btn">&times;</button>
+            </div>
+            <ul id="favorites-list" class="favorites-list"></ul>
+        </div>
+    </dialog>
+
+    <!-- Phase 5: Profile Modal -->
+    <dialog id="profile-dialog" class="modal profile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mon Profil</h2>
+                <button id="close-profile" class="close-btn">&times;</button>
+            </div>
+            <div class="profile-content">
+                <div class="profile-summary">
+                    <div class="big-avatar">👤</div>
+                    <h3 id="profile-level-name">Observateur</h3>
+                    <div class="xp-bar-container">
+                        <div id="xp-bar" class="xp-bar" style="width: 0%"></div>
+                    </div>
+                    <p><span id="profile-xp">0</span> XP</p>
+                </div>
+                <div class="badges-section">
+                    <h4>Badges</h4>
+                    <div class="badges-grid">
+                        <div class="badge" title="Premier Vote">🗳️</div>
+                        <div class="badge" title="Explorateur">🌍</div>
+                        <div class="badge" title="Photographe">📸</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <div class="loader hidden">
+        <div class="spinner"></div>
+    </div>
+
 </body>
+
 </html>
